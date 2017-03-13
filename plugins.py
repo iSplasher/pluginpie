@@ -40,45 +40,41 @@ class Plugins:
 
 registered = Plugins()
 
-class PluginMeta:
+class PluginMeta(type):
 
     def __init__(cls, name, bases, dct):
+        if not name.endswith("Plugin"):
+            raise PluginNameError(name, "Main plugin class should end with name Plugin")
+
+        if not hasattr(cls, "ID"):
+            raise PluginAttributeError(name, "ID attribute is missing")
+
+        cls.ID = cls.ID.replace('-', '')
+        if not hasattr(cls, "NAME"):
+            raise PluginAttributeError(name, "NAME attribute is missing")
+        if not hasattr(cls, "VERSION"):
+            raise PluginAttributeError(name, "VERSION attribute is missing")
+        if not hasattr(cls, "AUTHOR"):
+            raise PluginAttributeError(name, "AUTHOR attribute is missing")
+        if not hasattr(cls, "DESCRIPTION"):
+            raise PluginAttributeError(name, "DESCRIPTION attribute is missing")
+
         try:
-            if not name.endswith("Plugin"):
-                raise PluginNameError(name, "Main plugin class should end with name Plugin")
+            val = uuid.UUID(cls.ID, version=4)
+            assert val.hex == cls.ID
+        except ValueError:
+            raise PluginIDError(name, "Invalid plugin id. UUID4 is required.")
+        except AssertionError:
+            raise PluginIDError(name, "Invalid plugin id. A valid UUID4 is required.")
 
-            if not hasattr(cls, "ID"):
-                raise PluginAttributeError(name, "ID attribute is missing")
-
-            cls.ID = cls.ID.replace('-', '')
-            if not hasattr(cls, "NAME"):
-                raise PluginAttributeError(name, "NAME attribute is missing")
-            if not hasattr(cls, "VERSION"):
-                raise PluginAttributeError(name, "VERSION attribute is missing")
-            if not hasattr(cls, "AUTHOR"):
-                raise PluginAttributeError(name, "AUTHOR attribute is missing")
-            if not hasattr(cls, "DESCRIPTION"):
-                raise PluginAttributeError(name, "DESCRIPTION attribute is missing")
-
-            try:
-                val = uuid.UUID(cls.ID, version=4)
-                assert val.hex == cls.ID
-            except ValueError:
-                raise PluginIDError(name, "Invalid plugin id. UUID4 is required.")
-            except AssertionError:
-                raise PluginIDError(name, "Invalid plugin id. A valid UUID4 is required.")
-
-            if not isinstance(cls.NAME, str):
-                raise PluginAttributeError(name, "Plugin name should be a string")
-            if not isinstance(cls.VERSION, tuple):
-                raise PluginAttributeError(name, "Plugin version should be a tuple with 3 integers")
-            if not isinstance(cls.AUTHOR, str):
-                raise PluginAttributeError(name, "Plugin author should be a string")
-            if not isinstance(cls.DESCRIPTION, str):
-                raise PluginAttributeError(name, "Plugin description should be a string")
-
-        except PluginError:
-            return
+        if not isinstance(cls.NAME, str):
+            raise PluginAttributeError(name, "Plugin name should be a string")
+        if not isinstance(cls.VERSION, tuple):
+            raise PluginAttributeError(name, "Plugin version should be a tuple with 3 integers")
+        if not isinstance(cls.AUTHOR, str):
+            raise PluginAttributeError(name, "Plugin author should be a string")
+        if not isinstance(cls.DESCRIPTION, str):
+            raise PluginAttributeError(name, "Plugin description should be a string")
 
         super().__init__(name, bases, dct)
 
