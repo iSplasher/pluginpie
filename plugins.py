@@ -36,7 +36,7 @@ class Plugins:
         try:
             return self._plugins[key]
         except KeyError:
-            raise exceptions.PluginIDError("No plugin found with ID: {}".format(key))
+            raise PluginIDError("No plugin found with ID: {}".format(key))
 
 registered = Plugins()
 
@@ -45,39 +45,39 @@ class PluginMeta:
     def __init__(cls, name, bases, dct):
         try:
             if not name.endswith("Plugin"):
-                raise exceptions.PluginNameError(name, "Main plugin class should end with name Plugin")
+                raise PluginNameError(name, "Main plugin class should end with name Plugin")
 
             if not hasattr(cls, "ID"):
-                raise exceptions.PluginAttributeError(name, "ID attribute is missing")
+                raise PluginAttributeError(name, "ID attribute is missing")
 
             cls.ID = cls.ID.replace('-', '')
             if not hasattr(cls, "NAME"):
-                raise exceptions.PluginAttributeError(name, "NAME attribute is missing")
+                raise PluginAttributeError(name, "NAME attribute is missing")
             if not hasattr(cls, "VERSION"):
-                raise exceptions.PluginAttributeError(name, "VERSION attribute is missing")
+                raise PluginAttributeError(name, "VERSION attribute is missing")
             if not hasattr(cls, "AUTHOR"):
-                raise exceptions.PluginAttributeError(name, "AUTHOR attribute is missing")
+                raise PluginAttributeError(name, "AUTHOR attribute is missing")
             if not hasattr(cls, "DESCRIPTION"):
-                raise exceptions.PluginAttributeError(name, "DESCRIPTION attribute is missing")
+                raise PluginAttributeError(name, "DESCRIPTION attribute is missing")
 
             try:
                 val = uuid.UUID(cls.ID, version=4)
                 assert val.hex == cls.ID
             except ValueError:
-                raise exceptions.PluginIDError(name, "Invalid plugin id. UUID4 is required.")
+                raise PluginIDError(name, "Invalid plugin id. UUID4 is required.")
             except AssertionError:
-                raise exceptions.PluginIDError(name, "Invalid plugin id. A valid UUID4 is required.")
+                raise PluginIDError(name, "Invalid plugin id. A valid UUID4 is required.")
 
             if not isinstance(cls.NAME, str):
-                raise exceptions.PluginAttributeError(name, "Plugin name should be a string")
+                raise PluginAttributeError(name, "Plugin name should be a string")
             if not isinstance(cls.VERSION, tuple):
-                raise exceptions.PluginAttributeError(name, "Plugin version should be a tuple with 3 integers")
+                raise PluginAttributeError(name, "Plugin version should be a tuple with 3 integers")
             if not isinstance(cls.AUTHOR, str):
-                raise exceptions.PluginAttributeError(name, "Plugin author should be a string")
+                raise PluginAttributeError(name, "Plugin author should be a string")
             if not isinstance(cls.DESCRIPTION, str):
-                raise exceptions.PluginAttributeError(name, "Plugin description should be a string")
+                raise PluginAttributeError(name, "Plugin description should be a string")
 
-        except exceptions.PluginError:
+        except PluginError:
             return
 
         super().__init__(name, bases, dct)
@@ -105,19 +105,19 @@ class PluginMeta:
             def __init__(self, pluginid):
                 self._id = pluginid.replace('-', '')
                 if not registered._plugins.get(self._id):
-                    raise exceptions.PluginIDError(name, "No plugin found with ID: " + self._id)
+                    raise PluginIDError(name, "No plugin found with ID: " + self._id)
     
             def __getattr__(self, key):
                 try:
                     plugin = registered._plugins[self._id]
                 except KeyError:
-                    raise exceptions.PluginIDError(name, "No plugin found with ID: " + self._id)
+                    raise PluginIDError(name, "No plugin found with ID: " + self._id)
                     
                 pluginmethod = registered.hooks[self.ID].get(key)
                 if pluginmethod:
                     return pluginmethod 
                 else:
-                    raise exceptions.PluginMethodError(name, "Plugin {}:{} has no such method: {}".format(plugin.ID, plugin.NAME, key))
+                    raise PluginMethodError(name, "Plugin {}:{} has no such method: {}".format(plugin.ID, plugin.NAME, key))
 
         return OtherHPlugin(pluginid)
 
@@ -133,9 +133,9 @@ class PluginMeta:
 
         assert isinstance(pluginid, str) and isinstance(hook_name, str) and callable(handler), ""
         if not registered._plugins[pluginid]:
-            raise exceptions.PluginIDError("No plugin found with ID: {}".format(pluginid))
+            raise PluginIDError("No plugin found with ID: {}".format(pluginid))
         if not registered.hooks[pluginid][hook_name]:
-            raise exceptions.PluginHookError("No hook with name '{}' found on plugin with ID: {}".format(hook_name, pluginid))
+            raise PluginHookError("No hook with name '{}' found on plugin with ID: {}".format(hook_name, pluginid))
         registered._connections.append((cls.ID, pluginid.replace('-', ''), hook_name, handler))
 
     def createHook(cls, hook_name):
@@ -162,7 +162,7 @@ class PluginMeta:
                     try:
                         handler_returns.append(handler(*args, **kwargs))
                     except Exception as e:
-                        raise exceptions.PluginHandlerError(
+                        raise PluginHandlerError(
                             "An exception occured in {}:{} by {}:{}\n\t{}".format(
                                 hook_name, self.owner, registered._plugins[plugid].NAME, plugid, traceback.format_exc()))
                 return handler_returns
