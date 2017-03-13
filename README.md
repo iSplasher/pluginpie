@@ -29,10 +29,10 @@ In `mainfileplugin.py`:
 class MyPluginPlugin:
 	ID = "00000000-0000-0000-0000-000000000000"
 	NAME = "MyPlugin"
-	AUTHOR = "Pewpews"
-	DESCRIPTION = "MyPlugin makes you a happy panda!"
+	AUTHOR = "iSplasher"
+	DESCRIPTION = "My cool plugin description!"
 	VERSION = (1, 0, 0)
-	WEBSITE = "https://github.com/Pewpews/happypanda"
+	WEBSITE = "https://github.com/iSplasher/pluginpie"
 
 def init():
 	return MyPluginPlugin
