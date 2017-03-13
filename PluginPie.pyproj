@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5b944d7e-e5f3-4db9-b1da-58feaf6ac593</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PluginPie.py</StartupFile>
+    <StartupFile>plugins.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="PluginPie.py" />
+    <Compile Include="plugins.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="README.md">
+      <SubType>Code</SubType>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
